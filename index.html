@@ -221,7 +221,7 @@
       }
 
       .address {
-        margin-top: clamp(48px, 8vh, 86px);
+        margin-top: 0;
         text-align: center;
         font-family: "Jost", sans-serif;
         font-weight: 300;
@@ -246,6 +246,68 @@
         transform: scaleX(0);
         animation: grow-x 0.8s cubic-bezier(0.65, 0.05, 0.36, 1)
           calc(var(--t-drawn) + 1.05s) forwards;
+      }
+
+      /* the logo doubles as the trigger for the hidden "about" */
+      .brand {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .lower {
+        position: relative;
+        margin-top: clamp(48px, 8vh, 86px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .default-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: opacity 0.6s ease;
+      }
+
+      /* about copy — crossfades in over the address on logo hover */
+      .about {
+        position: absolute;
+        top: -0.4em;
+        left: 50%;
+        width: clamp(300px, 44vw, 600px);
+        text-align: center;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateX(-50%) translateY(6px);
+        transition: opacity 0.7s ease, transform 0.7s ease;
+      }
+      .composition.reveal .default-info {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .composition.reveal .about {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateX(-50%) translateY(0);
+      }
+      .about-lead {
+        margin: 0 0 clamp(16px, 2.4vh, 22px);
+        font-family: "Jost", sans-serif;
+        font-weight: 400;
+        font-size: clamp(16px, 1.75vw, 22px);
+        line-height: 1.4;
+        letter-spacing: 0.01em;
+        color: #fff;
+      }
+      .about-body {
+        margin: 0;
+        font-family: "Jost", sans-serif;
+        font-weight: 300;
+        font-size: clamp(13px, 1.15vw, 16px);
+        line-height: 1.8;
+        letter-spacing: 0.012em;
+        color: rgba(255, 255, 255, 0.74);
       }
 
       /* contact — email + instagram, kept as quiet as the rest */
@@ -398,6 +460,7 @@
   <body>
     <main class="stage">
       <div class="composition">
+        <div class="brand">
         <div class="mark">
           <div class="halo" aria-hidden="true"></div>
           <svg viewBox="0 0 222 232" role="img" aria-label="Rooftop Management">
@@ -473,7 +536,10 @@
             <span class="divider"></span>
           </div>
         </div>
+        </div>
 
+        <div class="lower">
+          <div class="default-info">
         <address class="address">
           <span class="tick"></span>
           10940 WILSHIRE BLVD, 24TH FLOOR<br />
@@ -506,6 +572,13 @@
             </svg>
           </a>
         </div>
+          </div>
+
+          <div class="about">
+            <p class="about-lead">A home for the people behind live entertainment.</p>
+            <p class="about-body">Twenty years in. 120+ live acts in the last twelve months alone. Rooftop Management represents the talent behind the moments the world stops to watch — tours for Taylor Swift, Benson Boone, Doja Cat, and Justin Timberlake; broadcasts like American Idol and the MTV VMAs; the Super Bowl Halftime Show and Olympic ceremonies. Art Basel and beyond. We don’t just place individuals. We field a close-knit team of the world’s best, and that’s the difference you see on stage.</p>
+          </div>
+        </div>
       </div>
     </main>
 
@@ -533,6 +606,25 @@
           }
         }
         window.addEventListener("pointermove", onMove, { passive: true });
+      })();
+
+      // Easter egg — hover (or tap) the logo to reveal the story; fades on leave.
+      (function () {
+        var comp = document.querySelector(".composition");
+        var brand = document.querySelector(".brand");
+        var about = document.querySelector(".about");
+        if (!comp || !brand) return;
+        var hovering = false, locked = false, t;
+        function apply() { comp.classList.toggle("reveal", locked || hovering); }
+        function enter() { clearTimeout(t); hovering = true; apply(); }
+        function leave() { hovering = false; clearTimeout(t); t = setTimeout(apply, 220); }
+        brand.addEventListener("pointerenter", enter);
+        brand.addEventListener("pointerleave", leave);
+        if (about) {
+          about.addEventListener("pointerenter", enter);
+          about.addEventListener("pointerleave", leave);
+        }
+        brand.addEventListener("click", function () { locked = !locked; apply(); });
       })();
     </script>
   </body>
